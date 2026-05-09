@@ -8,25 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from huggingface_hub import hf_hub_download
 import os
 
-def download_data():
-    files = {
-        'ratings_25m_clean.parquet': 'ratings_25m_clean.parquet',
-        'movies_enriched.parquet': 'movies_enriched.parquet',
-        'svd_25m.pkl': 'svd_25m.pkl',
-        'tags.csv': 'tags.csv'
-    }
-    for filename, repo_filename in files.items():
-        if not os.path.exists(filename):
-            print(f"Downloading {filename}...")
-            hf_hub_download(
-                repo_id='krav0x/movie-recommender',
-                filename=repo_filename,
-                repo_type='dataset',
-                local_dir='.'
-            )
-            print(f"{filename} downloaded!")
 
-download_data()
 
 # page config
 st.set_page_config(
