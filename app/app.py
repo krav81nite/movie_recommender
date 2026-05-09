@@ -58,11 +58,10 @@ st.markdown("""
     .stSelectbox > div > div {
         background-color: #1a1a2e !important;
         border: 1px solid #444 !important;
-        border-radius: 50px !important;
+        border-radius: 12px !important;
         color: white !important;
-        padding: 12px 24px !important;
+        padding: 8px 16px !important;
         font-size: 1rem !important;
-        min-height: 55px !important;
     }
 
     /* button */
