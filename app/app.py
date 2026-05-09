@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from huggingface_hub import hf_hub_download
 import os
 
@@ -79,7 +77,7 @@ POSTER_BASE_URL = "https://image.tmdb.org/t/p/w300"
 
 # download data from hugging face
 def download_data():
-    files = ['ratings_small.parquet', 'movies_enriched.parquet', 'svd_small.pkl', 'tags.csv']
+    files = ['ratings_small.parquet', 'movies_enriched.parquet', 'svd_small.pkl', 'cosine_sim.pkl']
     for f in files:
         if not os.path.exists(f):
             print(f'Downloading {f}...')
@@ -97,8 +95,7 @@ download_data()
 def load_data():
     ratings = pd.read_parquet('ratings_small.parquet')
     movies = pd.read_parquet('movies_enriched.parquet')
-    tags = pd.read_csv('tags.csv')
-    return ratings, movies, tags
+    return ratings, movies
 
 @st.cache_resource
 def load_model():
@@ -106,20 +103,10 @@ def load_model():
         return pickle.load(f)
 
 @st.cache_resource
-def build_content_model(_movies, _tags):
-    tags_clean = (_tags.dropna(subset=['tag'])
-                  .groupby('movieId')['tag']
-                  .apply(lambda x: ' '.join(x))
-                  .reset_index())
-    tags_clean.columns = ['movieId', 'tags']
-    m = _movies.merge(tags_clean, on='movieId', how='left')
-    m['tags'] = m['tags'].fillna('')
-    m['genres_clean'] = m['genres'].str.replace('|', ' ', regex=False)
-    m['features'] = m['genres_clean'] + ' ' + m['tags']
-    tfidf = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = tfidf.fit_transform(m['features'])
-    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-    return m, cosine_sim
+def load_content_model(_movies):
+    with open('cosine_sim.pkl', 'rb') as f:
+        cosine_sim = pickle.load(f)
+    return _movies, cosine_sim
 
 @st.cache_data
 def get_popular_movies(_ratings):
@@ -156,9 +143,9 @@ def display_movies(movie_df):
             </div>
             """, unsafe_allow_html=True)
 
-ratings, movies, tags = load_data()
+ratings, movies = load_data()
 svd = load_model()
-movies_cb, cosine_sim = build_content_model(movies, tags)
+movies_cb, cosine_sim = load_content_model(movies)
 popular_movies = get_popular_movies(ratings)
 
 # --- header ---
