@@ -213,7 +213,7 @@ popular_movies = get_popular_movies(ratings)
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     movie_list = movies['title'].sort_values().tolist()
-    selected_movie = st.selectbox("", movie_list, label_visibility="collapsed")
+    selected_movie = st.selectbox("Search for a movie", movie_list, label_visibility="collapsed")
     find = st.button("🔍 Find Similar Movies")
 
 if find:
