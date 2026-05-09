@@ -7,14 +7,13 @@ import os
 
 # page config
 st.set_page_config(
-    page_title="🎬 Movie Recommender",
+    page_title="🎬 CineMatch",
     page_icon="🎬",
     layout="wide"
 )
 
 st.markdown("""
 <style>
-    /* hide streamlit defaults */
     header { visibility: hidden; }
     .stApp { background: linear-gradient(135deg, #0a0a1a 0%, #0e1117 50%, #1a0a0a 100%); }
     
@@ -25,30 +24,17 @@ st.markdown("""
         justify-content: space-between;
         padding: 1.2rem 2rem;
         border-bottom: 1px solid #222;
-        margin-bottom: 0;
     }
     .navbar-logo {
         font-size: 1.2rem;
         font-weight: 700;
         color: #e50914;
     }
-    .navbar-links {
-        display: flex;
-        gap: 2rem;
-    }
-    .navbar-link {
-        color: #aaaaaa;
-        text-decoration: none;
-        font-size: 0.95rem;
-        cursor: pointer;
-    }
-    .navbar-link:hover { color: white; }
-    .navbar-link.active { color: white; font-weight: 600; }
 
     /* hero */
     .hero {
         text-align: center;
-        padding: 5rem 2rem 3rem;
+        padding: 5rem 2rem 2rem;
     }
     .hero-title {
         font-size: 4rem;
@@ -65,37 +51,43 @@ st.markdown("""
     .hero-subtitle {
         font-size: 1.1rem;
         color: #888888;
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
     }
 
     /* search bar */
-    .search-container {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 2rem;
+    .stSelectbox > div > div {
+        background-color: #1a1a2e !important;
+        border: 1px solid #444 !important;
+        border-radius: 50px !important;
+        color: white !important;
+        padding: 6px 16px !important;
+        font-size: 1rem !important;
     }
 
-    /* buttons */
+    /* button */
     .stButton > button {
         background: linear-gradient(90deg, #e50914, #ff4444);
         color: white;
         border: none;
         border-radius: 50px;
-        padding: 12px 36px;
+        padding: 12px 40px;
         font-size: 15px;
         font-weight: bold;
+        margin: 0 auto;
+        display: block;
     }
     .stButton > button:hover {
         background: linear-gradient(90deg, #f40612, #ff5555);
         color: white;
     }
 
-    /* selectbox */
-    .stSelectbox > div > div {
-        background-color: #1a1a2e;
-        border: 1px solid #333;
-        border-radius: 50px;
+    /* results section */
+    .results-title {
         color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 2rem 0 1rem;
+        text-align: center;
     }
 
     /* divider */
@@ -134,10 +126,6 @@ st.markdown("""
 
 <div class="navbar">
     <span class="navbar-logo">🎬 CineMatch</span>
-    <div class="navbar-links">
-        <span class="navbar-link active">Find Similar</span>
-        <span class="navbar-link">Personal Recommendations</span>
-    </div>
 </div>
 
 <div class="hero">
@@ -221,19 +209,14 @@ svd = load_model()
 movies_cb, cosine_sim = load_content_model(movies)
 popular_movies = get_popular_movies(ratings)
 
-# --- header ---
-st.title("🎬 Movie Recommender")
-st.markdown("Discover movies you'll love using collaborative filtering and content-based recommendations.")
-st.divider()
+# --- search ---
+col1, col2, col3 = st.columns([1, 3, 1])
+with col2:
+    movie_list = movies['title'].sort_values().tolist()
+    selected_movie = st.selectbox("", movie_list, label_visibility="collapsed")
+    find = st.button("🔍 Find Similar Movies")
 
-# --- section 1: content based ---
-st.subheader("🎥 Find similar movies")
-st.caption("Select a movie and we'll find similar ones based on genres and tags.")
-
-movie_list = movies['title'].sort_values().tolist()
-selected_movie = st.selectbox("Select a movie", movie_list)
-
-if st.button("Find Similar Movies"):
+if find:
     idx = movies_cb[movies_cb['title'] == selected_movie].index
     if len(idx) == 0:
         st.error("Movie not found!")
@@ -243,32 +226,5 @@ if st.button("Find Similar Movies"):
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
         scores = [s for s in scores if s[0] != idx][:10]
         top_movies = movies_cb.iloc[[s[0] for s in scores]]
-        display_movies(top_movies)
-
-st.divider()
-
-# --- section 2: personalized ---
-st.subheader("👤 Personalized recommendations")
-st.caption("Enter a user ID to get recommendations based on their rating history.")
-
-user_id = st.number_input("Enter a user ID (1-162541)", min_value=1, max_value=162541, value=1)
-
-if st.button("Get Personalized Recommendations"):
-    with st.spinner("Finding recommendations..."):
-
-        st.write("**Top rated movies by this user:**")
-        top_rated = (ratings[ratings['userId'] == user_id]
-                     .sort_values('rating', ascending=False)
-                     .head(5)[['title', 'rating']])
-        st.dataframe(top_rated, hide_index=True)
-
-        st.write("**Recommended for you:**")
-        rated_movies = set(ratings[ratings['userId'] == user_id]['movieId'].tolist())
-        unrated = [m for m in popular_movies if m not in rated_movies]
-
-        predictions = [svd.predict(user_id, m) for m in unrated]
-        predictions.sort(key=lambda x: x.est, reverse=True)
-        top_ids = [p.iid for p in predictions[:10]]
-
-        top_movies = movies[movies['movieId'].isin(top_ids)]
+        st.markdown("<div class='results-title'>Similar movies to " + selected_movie + "</div>", unsafe_allow_html=True)
         display_movies(top_movies)
