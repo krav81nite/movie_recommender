@@ -4,11 +4,8 @@ import numpy as np
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
 from huggingface_hub import hf_hub_download
 import os
-
-
 
 # page config
 st.set_page_config(
@@ -72,7 +69,6 @@ st.markdown("""
         top: 0;
         box-shadow: 0 8px 32px rgba(0,0,0,0.8);
     }
-    
     .movie-card:hover .movie-tooltip {
         display: block;
     }
@@ -81,17 +77,32 @@ st.markdown("""
 
 POSTER_BASE_URL = "https://image.tmdb.org/t/p/w300"
 
+# download data from hugging face
+def download_data():
+    files = ['ratings_small.parquet', 'movies_enriched.parquet', 'svd_small.pkl', 'tags.csv']
+    for f in files:
+        if not os.path.exists(f):
+            print(f'Downloading {f}...')
+            hf_hub_download(
+                repo_id='krav0x/movie-recommender',
+                filename=f,
+                repo_type='dataset',
+                local_dir='.'
+            )
+
+download_data()
+
 # load data
 @st.cache_data
 def load_data():
-    ratings = pd.read_parquet('ratings_25m_clean.parquet')
+    ratings = pd.read_parquet('ratings_small.parquet')
     movies = pd.read_parquet('movies_enriched.parquet')
     tags = pd.read_csv('tags.csv')
     return ratings, movies, tags
 
 @st.cache_resource
 def load_model():
-    with open('svd_25m.pkl', 'rb') as f:
+    with open('svd_small.pkl', 'rb') as f:
         return pickle.load(f)
 
 @st.cache_resource
