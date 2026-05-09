@@ -11,47 +11,109 @@ st.set_page_config(
     page_icon="🎬",
     layout="wide"
 )
+
 st.markdown("""
 <style>
-    /* background */
-    .stApp { background-color: #0e1117; }
+    /* hide streamlit defaults */
+    header { visibility: hidden; }
+    .stApp { background: linear-gradient(135deg, #0a0a1a 0%, #0e1117 50%, #1a0a0a 100%); }
     
-    /* title */
-    h1 { color: #e50914; font-size: 3rem !important; }
-    
-    /* subheaders */
-    h2, h3 { color: #ffffff; }
-    
+    /* navbar */
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.2rem 2rem;
+        border-bottom: 1px solid #222;
+        margin-bottom: 0;
+    }
+    .navbar-logo {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #e50914;
+    }
+    .navbar-links {
+        display: flex;
+        gap: 2rem;
+    }
+    .navbar-link {
+        color: #aaaaaa;
+        text-decoration: none;
+        font-size: 0.95rem;
+        cursor: pointer;
+    }
+    .navbar-link:hover { color: white; }
+    .navbar-link.active { color: white; font-weight: 600; }
+
+    /* hero */
+    .hero {
+        text-align: center;
+        padding: 5rem 2rem 3rem;
+    }
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+    }
+    .hero-title span {
+        background: linear-gradient(90deg, #e50914, #ff6b6b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #888888;
+        margin-bottom: 3rem;
+    }
+
+    /* search bar */
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
     /* buttons */
     .stButton > button {
-        background-color: #e50914;
+        background: linear-gradient(90deg, #e50914, #ff4444);
         color: white;
         border: none;
-        border-radius: 4px;
-        padding: 10px 24px;
-        font-size: 16px;
+        border-radius: 50px;
+        padding: 12px 36px;
+        font-size: 15px;
         font-weight: bold;
-        width: 100%;
     }
     .stButton > button:hover {
-        background-color: #f40612;
+        background: linear-gradient(90deg, #f40612, #ff5555);
         color: white;
     }
 
-    /* selectbox and number input */
-    .stSelectbox, .stNumberInput { color: white; }
+    /* selectbox */
+    .stSelectbox > div > div {
+        background-color: #1a1a2e;
+        border: 1px solid #333;
+        border-radius: 50px;
+        color: white;
+    }
 
     /* divider */
-    hr { border-color: #333333; }
+    hr { border-color: #222222; margin: 2rem 0; }
 
-    /* dataframe */
-    .stDataFrame { background-color: #1a1a2e; }
-
-    /* movie card hover */
+    /* movie card */
     .movie-card {
         position: relative;
         cursor: pointer;
         margin-bottom: 8px;
+        border-radius: 8px;
+    }
+    .movie-card img {
+        width: 100%;
+        border-radius: 8px;
+        display: block;
+        aspect-ratio: 2/3;
+        object-fit: cover;
     }
     .movie-tooltip {
         display: none;
@@ -65,12 +127,23 @@ st.markdown("""
         left: 50%;
         transform: translateX(-50%);
         top: 0;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.9);
     }
-    .movie-card:hover .movie-tooltip {
-        display: block;
-    }
+    .movie-card:hover .movie-tooltip { display: block; }
 </style>
+
+<div class="navbar">
+    <span class="navbar-logo">🎬 CineMatch</span>
+    <div class="navbar-links">
+        <span class="navbar-link active">Find Similar</span>
+        <span class="navbar-link">Personal Recommendations</span>
+    </div>
+</div>
+
+<div class="hero">
+    <div class="hero-title">Discover Your Next<br><span>Favorite Movie</span></div>
+    <div class="hero-subtitle">ML-powered recommendations based on what you love</div>
+</div>
 """, unsafe_allow_html=True)
 
 POSTER_BASE_URL = "https://image.tmdb.org/t/p/w300"
