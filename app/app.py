@@ -9,17 +9,22 @@ from huggingface_hub import hf_hub_download
 import os
 
 def download_data():
-    files = ['movies_enriched.csv', 'ratings_25m_clean.csv', 'svd_25m.pkl', 'tags.csv']
-    for f in files:
-        if not os.path.exists(f):
-            print(f"Downloading {f}...")
+    files = {
+        'ratings_25m_clean.parquet': 'ratings_25m_clean.parquet',
+        'movies_enriched.parquet': 'movies_enriched.parquet',
+        'svd_25m.pkl': 'svd_25m.pkl',
+        'tags.csv': 'tags.csv'
+    }
+    for filename, repo_filename in files.items():
+        if not os.path.exists(filename):
+            print(f"Downloading {filename}...")
             hf_hub_download(
                 repo_id='krav0x/movie-recommender',
-                filename=f,
+                filename=repo_filename,
                 repo_type='dataset',
                 local_dir='.'
             )
-            print(f"{f} downloaded!")
+            print(f"{filename} downloaded!")
 
 download_data()
 
@@ -97,8 +102,8 @@ POSTER_BASE_URL = "https://image.tmdb.org/t/p/w300"
 # load data
 @st.cache_data
 def load_data():
-    ratings = pd.read_csv('ratings_25m_clean.csv')
-    movies = pd.read_csv('movies_enriched.csv')
+    ratings = pd.read_parquet('ratings_25m_clean.parquet')
+    movies = pd.read_parquet('movies_enriched.parquet')
     tags = pd.read_csv('tags.csv')
     return ratings, movies, tags
 
