@@ -16,6 +16,9 @@ st.markdown("""
 <style>
     header { visibility: hidden; }
     .stApp { background: linear-gradient(135deg, #0a0a1a 0%, #0e1117 50%, #1a0a0a 100%); }
+    .block-container {
+        padding-top: 0 !important;
+    }
     
     /* navbar */
     .navbar {
